@@ -118,7 +118,7 @@ def img_to_str(model, image_file: str):
 
 model = keras.models.load_model("data/weights/emnist_letters3_0.h5")
 
-s_out = img_to_str(model, "data\\testing\\test2.png")
+s_out = img_to_str(model, "data/testing/test2.png")
 print(s_out)
 
 for i in range(len(outs)):
