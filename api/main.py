@@ -1,19 +1,27 @@
-from flask import Flask, jsonify, request
+import base64
+import uuid
+
+from flask import Flask, jsonify, request, redirect, url_for, json
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from sqlalchemy import create_engine
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+import os
+from googletrans import Translator
 
-from main_recognition import model,img_to_str
+from main_recognition import model, img_to_str
 from api.config import Config
 from flask_cors import CORS
 
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
+allowed_extensions=set['png','jpg','jpeg']
+upload_folder="/home/ognyahskiy/project_3_sem/upload_data"
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.config.from_object(Config)  # извлекаем данные из файла config.py
-
+app.config.from_object(Config)# извлекаем данные из файла config.py
+app.config['upload_folder'] = upload_folder
 client = app.test_client()
+translator=Translator()
 # инициализируем связь с базой данных
 engine = create_engine("postgresql+psycopg2://postgres:postgres@localhost/flaskapi")
 
@@ -71,16 +79,26 @@ def refresh():
     access_token = create_access_token(identity=profile_id)
     refresh_token= create_refresh_token(identity=profile_id)
     return jsonify(access_token=access_token, refresh_token=refresh_token)
-
-@app.route('/recognition', methods=['GET','POST'], endpoint='recognition')# метод для обработки изображения
+@app.route('/recognition', methods=['POST'], endpoint='recognition') #метод распознования текста с картинки
 def recognition():
-    img=request.get_data()
-    f = request.files['jpg']
-    f.save('image.jpg')
-    response= img_to_str(model, f)
+    file = request.files['file']
+    extension = os.path.splitext(file.filename)[1]
+    f_name = str(uuid.uuid4()) + extension
+    file.save(os.path.join(upload_folder, f_name))
+    img_path=upload_folder+"/"+f_name
+    response = img_to_str(model, img_path)
     return response
+
+@app.route("/translation", methods=['POST'], endpoint='translation') #перевод текста
+def translation():
+    trans_info=request.json
+    text=str(trans_info["text"])
+    first_lang=trans_info["source"]
+    second_lang=trans_info["res"]
+    result=translator.translate(text, src=first_lang, dest=second_lang).text
+    return result
 
 
 @app.teardown_appcontext
-def shutdown_session(exception=None):
+def shutdown_session(Exception=None):
     session.remove()

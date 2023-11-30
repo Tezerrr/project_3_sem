@@ -81,4 +81,4 @@ def img_to_str(model, image_file):
     return s_out
 
 
-model = keras.models.load_model("/home/ognyahskiy/project_3_sem/data/weights/emnist_letters3_0.h5")#путь к весу
+model = keras.models.load_model("/home/ognyahskiy/project_3_sem/recognition_data/weights/emnist_letters3_0.h5")#путь к весу

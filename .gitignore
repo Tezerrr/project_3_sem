@@ -1,6 +1,6 @@
-data/gzip
+recognition_data/gzip
 training.py
 lol.py
 model.py
-data/weights/emnist_letters.h5
-data/weights/emnist_letters2_0.h5
+recognition_data/weights/emnist_letters.h5
+recognition_data/weights/emnist_letters2_0.h5

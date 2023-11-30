@@ -11,7 +11,6 @@ class User(Base):  # создаем таблицу с данными польз�
     username = db.Column(db.String(128), nullable=False)
     email = db.Column(db.String(128), nullable=False, unique=True)
     password = db.Column(db.String(128), nullable=False)
-    datas = relationship('user_data', backref='user', lazy=True)
 
     def __init__(self, **kwargs):
         self.username = kwargs.get('username')

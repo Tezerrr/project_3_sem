@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-my_photo = cv2.imread('data\\testing\\test2.png')
+my_photo = cv2.imread('recognition_data\\testing\\test2.png')
 filterd_image = cv2.medianBlur(my_photo, 7)
 img_grey = cv2.cvtColor(filterd_image, cv2.COLOR_BGR2GRAY)
 
