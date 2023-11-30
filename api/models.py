@@ -1,5 +1,4 @@
 import sqlalchemy as db
-from sqlalchemy.orm import relationship
 from flask_jwt_extended import create_access_token, create_refresh_token
 from passlib.hash import bcrypt
 from api.main import Base
@@ -31,3 +30,8 @@ class User(Base):  # создаем таблицу с данными польз�
         if not bcrypt.verify(password, user.password):
             raise Exception('No user with this password')
         return user
+class Images(Base):
+    __tablename__ = 'images'
+    id=db.Column(db.Integer, primary_key=True)
+    image_path=db.Column(db.String(128),nullable=False)
+    user_id=db.Column(db.Integer, db.ForeignKey('users.id'))

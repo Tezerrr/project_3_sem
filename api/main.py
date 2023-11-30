@@ -1,14 +1,12 @@
-import base64
-import uuid
+import uuid,os
 
-from flask import Flask, jsonify, request, redirect, url_for, json
+from flask import Flask, jsonify, request
 from sqlalchemy.orm import sessionmaker, scoped_session, declarative_base
 from sqlalchemy import create_engine
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
-import os
 from googletrans import Translator
 
-from main_recognition import model, img_to_str
+from api.main_recognition import model, img_to_str
 from api.config import Config
 from flask_cors import CORS
 
@@ -80,15 +78,30 @@ def refresh():
     refresh_token= create_refresh_token(identity=profile_id)
     return jsonify(access_token=access_token, refresh_token=refresh_token)
 @app.route('/recognition', methods=['POST'], endpoint='recognition') #метод распознования текста с картинки
+@jwt_required()
 def recognition():
+    user_id=get_jwt_identity()
     file = request.files['file']
     extension = os.path.splitext(file.filename)[1]
     f_name = str(uuid.uuid4()) + extension
     file.save(os.path.join(upload_folder, f_name))
     img_path=upload_folder+"/"+f_name
     response = img_to_str(model, img_path)
+    new_image=Images(user_id=user_id, image_path=img_path)
+    session.add(new_image)
+    session.commit()
     return response
 
+@app.route("/history", methods=['GET'], endpoint='history')
+@jwt_required()
+def history():
+    user_id=get_jwt_identity()
+    data=Images.query.filter(Images.user_id==user_id).all()
+    serialized=[]
+    for data in data:
+        serialized.append({'id':data.id,
+                           'image_path':data.image_path})
+    return jsonify(serialized)
 @app.route("/translation", methods=['POST'], endpoint='translation') #перевод текста
 def translation():
     trans_info=request.json

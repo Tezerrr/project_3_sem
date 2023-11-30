@@ -1,5 +1,4 @@
-from api.main import app, client
-from api.models import User
+from api.main import client
 
 
 
