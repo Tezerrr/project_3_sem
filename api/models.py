@@ -34,4 +34,5 @@ class Images(Base):
     __tablename__ = 'images'
     id=db.Column(db.Integer, primary_key=True)
     image_path=db.Column(db.String(128),nullable=False)
+    response = db.Column(db.String(128), nullable=True)
     user_id=db.Column(db.Integer, db.ForeignKey('users.id'))

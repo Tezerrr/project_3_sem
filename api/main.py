@@ -10,11 +10,10 @@ from api.main_recognition import model, img_to_str
 from api.config import Config
 from flask_cors import CORS
 
-
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 allowed_extensions=set['png','jpg','jpeg']
-upload_folder="/home/ognyahskiy/project_3_sem/upload_data"
+upload_folder="/upload_data"
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config.from_object(Config)# извлекаем данные из файла config.py
 app.config['upload_folder'] = upload_folder
@@ -31,7 +30,6 @@ Base.query = session.query_property()
 jwt = JWTManager(app)
 from api.models import *  # импортируем таблицу
 Base.metadata.create_all(bind=engine)
-
 
 @app.route('/register', methods=['POST'], endpoint='register')  # метод регистрации пользователя
 def register():
@@ -87,10 +85,10 @@ def recognition():
     file.save(os.path.join(upload_folder, f_name))
     img_path=upload_folder+"/"+f_name
     response = img_to_str(model, img_path)
-    new_image=Images(user_id=user_id, image_path=img_path)
+    new_image=Images(user_id=user_id, image_path=img_path, response=response)
     session.add(new_image)
     session.commit()
-    return response
+    return {'response':response}
 
 @app.route("/history", methods=['GET'], endpoint='history')
 @jwt_required()
@@ -100,6 +98,7 @@ def history():
     serialized=[]
     for data in data:
         serialized.append({'id':data.id,
+                           'response':data.response,
                            'image_path':data.image_path})
     return jsonify(serialized)
 @app.route("/translation", methods=['POST'], endpoint='translation') #перевод текста
@@ -110,7 +109,6 @@ def translation():
     second_lang=trans_info["res"]
     result=translator.translate(text, src=first_lang, dest=second_lang).text
     return result
-
 
 @app.teardown_appcontext
 def shutdown_session(Exception=None):
