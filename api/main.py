@@ -13,7 +13,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 allowed_extensions=set['png','jpg','jpeg']
-upload_folder="/upload_data"
+upload_folder="upload_data"
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.config.from_object(Config)# извлекаем данные из файла config.py
 app.config['upload_folder'] = upload_folder
